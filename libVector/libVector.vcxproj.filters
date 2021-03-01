@@ -18,10 +18,19 @@
     <ClInclude Include="include\vector2d.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="include\geometry2d.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\vector2d.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\geometry2d.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
