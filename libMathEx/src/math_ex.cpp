@@ -32,3 +32,13 @@ bool DOUBLE_EPS::geq(double a, double b)
 {
 	return a > b || eq(a, b);
 }
+
+bool DOUBLE_EPS::in_between_closed(double x, double l, double r)
+{
+	return (leq(l, x) && leq(x, r)) || (geq(l, x) && geq(x, r));
+}
+
+bool DOUBLE_EPS::in_between_open(double x, double l, double r)
+{
+	return (lt(l, x) && lt(x, r)) || (gt(l, x) && gt(x, r));
+}

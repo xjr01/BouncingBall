@@ -1,6 +1,7 @@
 #include "EasyX_Draw.h"
 #include <math_ex.h>
 #include <utility>
+#include <vector>
 
 #undef min
 #undef max
@@ -149,4 +150,35 @@ void drawSolidCircle(Vector2D p, double r, Color color)
 void drawDot(Vector2D p, double width, Color color)
 {
 	return drawSolidCircle(p, width, color);
+}
+
+void drawPolygon(PolygonClass poly, double width, Color color)
+{
+	if (poly.vertices.empty()) return;
+	std::vector<Vector2D>::iterator it = poly.vertices.begin(), lst;
+	for (lst = it++; it != poly.vertices.end(); lst = it++)
+		drawLine(*lst, *it, width);
+	it = poly.vertices.begin();
+	drawLine(*lst, *it, width);
+	return;
+}
+
+void drawSolidPolygon(PolygonClass poly, Color color)
+{
+	if (poly.vertices.size() < 3) return;
+	double l, r, u, d;
+	l = r = poly.vertices[0].x;
+	u = d = poly.vertices[0].y;
+	for (std::vector<Vector2D>::iterator it = poly.vertices.begin(); it != poly.vertices.end(); ++it) {
+		l = std::min(l, it->x); r = std::max(r, it->x);
+		u = std::min(u, it->y); d = std::max(d, it->y);
+	}
+	l -= 1.0; r += 1.0;
+	u -= 1.0; d += 1.0;
+	for (int y = (int)u; y <= (int)d; ++y)
+		for (int x = (int)l; x <= (int)r; ++x)
+			if (poly.inside(Vector2D(x, y))) {
+				PIX(x, y) += color;
+			}
+	return;
 }

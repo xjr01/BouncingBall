@@ -36,3 +36,5 @@ void drawCircle(Vector2D p, double r, double width, Color color = cur_color);
 void drawSolidCircle(Circle cir, Color color = cur_color);
 void drawSolidCircle(Vector2D p, double r, Color color = cur_color);
 void drawDot(Vector2D p, double width, Color color = cur_color);
+void drawPolygon(PolygonClass poly, double width, Color color = cur_color);
+void drawSolidPolygon(PolygonClass poly, Color color = cur_color);

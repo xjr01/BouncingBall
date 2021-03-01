@@ -25,14 +25,18 @@ namespace testVector
 			createWin();
 			BeginBatchDraw();
 			setCurrentColor(Color(0, 0, 127));
-			drawLine(Segment(Vector2D(100, 80), Vector2D(200, 380)), 10);
+			drawLine(Segment(Vector2D(100, 80), Vector2D(100, 280)), 10);
 			drawCircle(Vector2D(100, 500), 120, 8);
 			drawCircle(Vector2D(1300, 500), 120, 1.5);
 			drawSolidCircle(Vector2D(500, 400), 120);
 			drawDot(Vector2D(900, 180), 9);
+			cleardevice();
+			//drawPolygon(std::vector<Vector2D>{ { 134, 154 }, { 725, 166 }, { 263, 532 }, { 484, 33 }, { 531, 568 } }, 1);
+			drawSolidPolygon(std::vector<Vector2D>{ { 134, 154 }, { 725, 166 }, { 263, 532 }, { 484, 33 }, { 531, 568 } });
 			FlushBatchDraw();
 			EndBatchDraw();
-			Sleep(5000);
+			while (!GetAsyncKeyState(VK_ESCAPE));
+			closegraph();
 			exit(0);
 		}
 	};
