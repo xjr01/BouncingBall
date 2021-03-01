@@ -1,7 +1,7 @@
 #pragma once
 
 class Vector2D {
-private:
+public:
 	double x, y;
 	Vector2D() = default;
 	Vector2D(double x, double y);
