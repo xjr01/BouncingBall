@@ -13,6 +13,9 @@ public:
 	Line& operator = (const Line& t) = default;
 
 	Vector2D cross(const Line& l) const;
+	Vector2D project(const Vector2D& x) const;
+	double cross_t(const Line& l) const; // returns t where the cross point is p+tv
+	double project_t(const Vector2D& x) const;
 	double distance(const Vector2D& x) const;
 };
 

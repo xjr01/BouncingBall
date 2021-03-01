@@ -66,6 +66,11 @@ double Vector2D::operator^(const Vector2D& t) const
     return x * t.y - y * t.x;
 }
 
+bool Vector2D::operator==(const Vector2D& t) const
+{
+    return DOUBLE_EPS::eq(x, t.x) && DOUBLE_EPS::eq(y, t.y);
+}
+
 Vector2D Vector2D::zoomTo(double length) const
 {
     return *this / this->length() * length;

@@ -20,6 +20,8 @@ public:
 	double operator * (const Vector2D& t) const; // dot
 	double operator ^ (const Vector2D& t) const; // cross
 
+	bool operator == (const Vector2D& t) const;
+
 	Vector2D zoomTo(double length) const;
 	Vector2D& zoomTo_(double length);
 	Vector2D scale(double sx, double sy) const;
