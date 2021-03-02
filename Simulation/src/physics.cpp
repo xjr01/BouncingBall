@@ -1,4 +1,4 @@
-#include "..\include\physics.h"
+#include "physics.h"
 
 const double time_step = .01;
 
@@ -41,20 +41,17 @@ void Ball::integrate(double time_step)
 	return;
 }
 
-double collisionDetect(const Ball& ball, const WallDot& wall)
-{
-	return 0.0;
-}
-
-double collisionDetect(const Ball& ball, const WallSegment& wall)
-{
-	return 0.0;
-}
-
 WallDot::WallDot(Vector2D p) : p(p)
 {
 }
 
 WallSegment::WallSegment(Segment seg) : seg(seg)
 {
+}
+
+double collisionDetect(const Ball& ball, const WallDot& wall)
+{
+	std::vector<double> collision_time = Line(ball.shape.p, ball.v).cross_t(Circle(wall.p, ball.shape.r));
+	if (collision_time.empty()) return std::numeric_limits<double>::infinity();
+	return collision_time[0];
 }
