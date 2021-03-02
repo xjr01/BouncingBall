@@ -12,7 +12,7 @@ Line::Line(Vector2D p, Vector2D v, bool double_point)
 	}
 	else {
 		this->p = p;
-		this->v = v;
+		this->v = v.zoomTo(1);
 	}
 }
 
@@ -47,6 +47,33 @@ double Line::distance(const Vector2D& x) const
 bool Line::crossed(const Segment& seg) const
 {
 	return seg.crossed(*this);
+}
+
+std::vector<Vector2D> Line::cross(const Circle& c) const
+{
+	std::vector<Vector2D> ans;
+	for (const auto& t : cross_t(c)) ans.push_back(p + t * v);
+	return ans;
+}
+
+std::vector<double> Line::cross_t(const Circle& c) const
+{
+	double delta_x = p.x - c.p.x, delta_y = p.y - c.p.y;
+	/* equation:
+	 * (v.x*v.x+v.y*v.y)*t*t + 2*(delta_x*v.x+delta_y*v.y)*t + delta_x*delta_x+delta_y*delta_y-c.r*c.r = 0
+	 * i.e. A*t*t + 2*B*t + C = 0
+	 */
+	double A = 1, B = 2 * (delta_x * v.x + delta_y * v.y), C = delta_x * delta_x + delta_y * delta_y - c.r * c.r,
+		Delta = B * B - 4 * A * C;
+	std::vector<double> ans;
+	if (DOUBLE_EPS::lt(Delta, 0)) return ans;
+	if (DOUBLE_EPS::eq(Delta, 0)) {
+		ans.push_back(-B / (2 * A));
+		return ans;
+	}
+	ans.push_back((-B + sqrt(Delta)) / (2 * A));
+	ans.push_back((-B - sqrt(Delta)) / (2 * A));
+	return ans;
 }
 
 Line Line::rotate(double angle) const
@@ -97,6 +124,11 @@ bool Segment::crossed(const Line& l) const
 
 Circle::Circle(Vector2D p, double r) : p(p), r(r)
 {
+}
+
+std::vector<Vector2D> Circle::cross(const Line& l) const
+{
+	return l.cross(*this);
 }
 
 PolygonClass::PolygonClass(std::vector<Vector2D> vertices) : vertices(vertices)

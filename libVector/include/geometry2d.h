@@ -5,6 +5,7 @@
 #include <vector>
 
 class Segment;
+class Circle;
 
 class Line {
 private:
@@ -20,6 +21,8 @@ public:
 	double project_t(const Vector2D& x) const;
 	double distance(const Vector2D& x) const;
 	bool crossed(const Segment& seg) const;
+	std::vector<Vector2D> cross(const Circle& c) const;
+	std::vector<double> cross_t(const Circle& c) const;
 
 	Line rotate(double angle) const;
 	Line& rotate_(double angle);
@@ -47,6 +50,8 @@ public:
 	double r;
 	Circle() = default;
 	Circle(Vector2D p, double r);
+
+	std::vector<Vector2D> cross(const Line& l) const;
 };
 
 class PolygonClass {

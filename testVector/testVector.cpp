@@ -8,16 +8,33 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace testVector
 {
-	/*TEST_CLASS(testVector)
+	TEST_CLASS(testVector)
 	{
 	public:
 		
-		TEST_METHOD(TestAdd)
+		/*TEST_METHOD(TestAdd)
 		{
 			Vector2D a(2, 3), b(4, 5);
 			Assert::IsTrue(a + b == Vector2D(6, 8));
+		}*/
+
+		TEST_METHOD(TestLineCross) {
+			Line line(Vector2D(1, 1), Vector2D(10, 1), true);
+			Circle circle(Vector2D(5, 2), 1);
+			char buf[500];
+			for (const auto& p : circle.cross(line)) {
+				sprintf_s(buf, "%.3lf, %.3lf\n", p.x, p.y);
+				OutputDebugStringA(buf);
+			}
+			OutputDebugStringA("-------\n");
+			circle = Circle(Vector2D(5, 2), 2);
+			for (const auto& p : circle.cross(line)) {
+				sprintf_s(buf, "%.3lf, %.3lf\n", p.x, p.y);
+				OutputDebugStringA(buf);
+			}
+			;
 		}
-	};*/
+	};
 	TEST_CLASS(testDraw) {
 	public:
 
@@ -40,7 +57,7 @@ namespace testVector
 			exit(0);
 		}*/
 
-		TEST_METHOD(TestPolygonDraw) {
+		/*TEST_METHOD(TestPolygonDraw) {
 			createWin();
 			BeginBatchDraw();
 			cleardevice();
@@ -78,6 +95,6 @@ namespace testVector
 			}
 			EndBatchDraw();
 			closegraph();
-		}
+		}*/
 	};
 }
