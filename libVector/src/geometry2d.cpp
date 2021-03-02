@@ -71,8 +71,8 @@ std::vector<double> Line::cross_t(const Circle& c) const
 		ans.push_back(-B / (2 * A));
 		return ans;
 	}
-	ans.push_back((-B + sqrt(Delta)) / (2 * A));
 	ans.push_back((-B - sqrt(Delta)) / (2 * A));
+	ans.push_back((-B + sqrt(Delta)) / (2 * A));
 	return ans;
 }
 
