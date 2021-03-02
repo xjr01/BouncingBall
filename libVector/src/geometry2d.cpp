@@ -105,6 +105,8 @@ PolygonClass::PolygonClass(std::vector<Vector2D> vertices) : vertices(vertices)
 
 bool PolygonClass::inside(Vector2D p, int kase) const
 {
+	if (vertices.size() < 3) return false;
+
 	Line test_ray(p, Vector2D(1, 0));
 	std::uniform_real_distribution<double> uniform(0, pi * 2);
 	int tot_in = 0, tot_out = 0;
