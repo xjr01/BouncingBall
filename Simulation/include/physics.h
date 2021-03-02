@@ -23,6 +23,7 @@ public:
 	void set_m(const double& m);
 
 	void addForce(Vector2D force);
+	void integrate(double time_step); // call after doing all the collision detect
 	friend double collisionDetect(const Ball& ball, const WallDot& wall);
 		// returns how many seconds before the collision happens
 	friend double collisionDetect(const Ball& ball, const WallSegment& wall);
