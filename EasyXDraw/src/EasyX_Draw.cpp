@@ -177,7 +177,7 @@ void drawSolidPolygon(PolygonClass poly, Color color)
 	u -= 1.0; d += 1.0;
 	for (int y = (int)u; y <= (int)d; ++y)
 		for (int x = (int)l; x <= (int)r; ++x)
-			if (poly.inside(Vector2D(x, y))) {
+			if (poly.inside(Vector2D(x, y), 3)) {
 				PIX(x, y) += color;
 			}
 	return;
