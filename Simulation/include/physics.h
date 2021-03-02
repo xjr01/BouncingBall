@@ -2,9 +2,11 @@
 
 #include <vector2d.h>
 #include <geometry2d.h>
+#include <utility>
 
 extern const double time_step; // In seconds
 
+class Wall;
 class WallDot;
 class WallSegment;
 
@@ -24,9 +26,11 @@ public:
 
 	void addForce(Vector2D force);
 	void integrate(double time_step); // call after doing all the collision detect
-	friend double collisionDetect(const Ball& ball, const WallDot& wall);
-		// returns how many seconds before the collision happens, returns inf if no collision at all
-	friend double collisionDetect(const Ball& ball, const WallSegment& wall);
+	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallDot& wall);
+		/* returns how many seconds before the collision happens, returns inf if no collision at all
+		 * and which part of the wall will be touching the 
+		 */
+	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallSegment& wall);
 };
 
 class Wall {};
@@ -38,7 +42,7 @@ public:
 	WallDot() = default;
 	explicit WallDot(Vector2D p);
 
-	friend double collisionDetect(const Ball& ball, const WallDot& wall);
+	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallDot& wall);
 };
 
 class WallSegment : public Wall {
@@ -48,5 +52,5 @@ public:
 	WallSegment() = default;
 	explicit WallSegment(Segment seg);
 
-	friend double collisionDetect(const Ball& ball, const WallSegment& wall);
+	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallSegment& wall);
 };

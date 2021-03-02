@@ -49,9 +49,15 @@ WallSegment::WallSegment(Segment seg) : seg(seg)
 {
 }
 
-double collisionDetect(const Ball& ball, const WallDot& wall)
+std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallDot& wall)
 {
 	std::vector<double> collision_time = Line(ball.shape.p, ball.v).cross_t(Circle(wall.p, ball.shape.r));
-	if (collision_time.empty()) return std::numeric_limits<double>::infinity();
-	return collision_time[0];
+	if (collision_time.empty())
+		return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)NULL);
+	return std::make_pair(collision_time[0], (Wall*)&wall);
+}
+
+std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallSegment& wall)
+{
+
 }
