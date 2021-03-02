@@ -12,7 +12,7 @@ Line::Line(Vector2D p, Vector2D v, bool double_point)
 	}
 	else {
 		this->p = p;
-		this->v = v.zoomTo(1);
+		this->v = v;
 	}
 }
 
