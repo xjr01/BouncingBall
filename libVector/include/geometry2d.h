@@ -58,7 +58,7 @@ class PolygonClass {
 public:
 	std::vector<Vector2D> vertices;
 	PolygonClass() = default;
-	PolygonClass(std::vector<Vector2D> vertices);
+	explicit PolygonClass(std::vector<Vector2D> vertices);
 
 	bool inside(Vector2D p, int kase = 5) const;
 };
