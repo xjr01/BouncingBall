@@ -1,4 +1,5 @@
 #include "physics.h"
+#include <math_ex.h>
 
 const double time_step = .01;
 
@@ -28,6 +29,11 @@ void Ball::set_m(const double& m)
 	return;
 }
 
+double Ball::get_mass()
+{
+	return m;
+}
+
 void Ball::addForce(Vector2D force)
 {
 	this->a += force / m;
@@ -41,23 +47,52 @@ void Ball::integrate(double time_step)
 	return;
 }
 
-WallDot::WallDot(Vector2D p) : p(p)
+Wall::Wall() : elasticity(1)
 {
 }
 
-WallSegment::WallSegment(Segment seg) : seg(seg)
+Wall::Wall(double elasticity) : elasticity(elasticity)
 {
+}
+
+WallDot::WallDot(Vector2D p, double elasticity) : p(p), Wall(elasticity)
+{
+}
+
+void WallDot::collisionRespond(Ball& ball)
+{
+	Vector2D n_cap = (ball.shape.p - p).zoomTo(1); // unit normal vector
+	Vector2D vn = (ball.v * n_cap) * n_cap,
+		vt = ball.v - vn;
+	vn *= -elasticity;
+	ball.v = vn + vt;
+	return;
+}
+
+WallSegment::WallSegment(Segment seg, double elasticity) : seg(seg), Wall(elasticity)
+{
+}
+
+void WallSegment::collisionRespond(Ball& ball)
+{
+	// TODO
+	return;
 }
 
 std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallDot& wall)
 {
+	if (DOUBLE_EPS::eq(ball.v.length(), 0))
+		return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr);
 	std::vector<double> collision_time = Line(ball.shape.p, ball.v).cross_t(Circle(wall.p, ball.shape.r));
+	while (!collision_time.empty() && collision_time[0] < 0)
+		collision_time.erase(collision_time.begin());
 	if (collision_time.empty())
-		return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)NULL);
+		return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr);
 	return std::make_pair(collision_time[0], (Wall*)&wall);
 }
 
 std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallSegment& wall)
 {
-
+	// TODO
+	return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr);
 }

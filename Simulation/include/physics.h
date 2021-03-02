@@ -5,6 +5,7 @@
 #include <utility>
 
 extern const double time_step; // In seconds
+extern void draw();
 
 class Wall;
 class WallDot;
@@ -23,6 +24,7 @@ public:
 	void set_shape(const Circle& shape);
 	void set_v(const Vector2D& v);
 	void set_m(const double& m);
+	double get_mass();
 
 	void addForce(Vector2D force);
 	void integrate(double time_step); // call after doing all the collision detect
@@ -31,18 +33,32 @@ public:
 		 * and which part of the wall will be touching the 
 		 */
 	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallSegment& wall);
+	friend void draw();
+
+	friend class Wall;
+	friend class WallDot;
+	friend class WallSegment;
 };
 
-class Wall {};
+class Wall {
+protected:
+	double elasticity;
+public:
+	Wall();
+	explicit Wall(double elasticity);
+	virtual void collisionRespond(Ball& ball) = 0;
+};
 
 class WallDot : public Wall {
 private:
 	Vector2D p;
 public:
 	WallDot() = default;
-	explicit WallDot(Vector2D p);
+	explicit WallDot(Vector2D p, double elasticity = .3);
 
+	void collisionRespond(Ball& ball) override;
 	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallDot& wall);
+	friend void draw();
 };
 
 class WallSegment : public Wall {
@@ -50,7 +66,9 @@ private:
 	Segment seg;
 public:
 	WallSegment() = default;
-	explicit WallSegment(Segment seg);
+	explicit WallSegment(Segment seg, double elasticity = .8);
 
+	void collisionRespond(Ball& ball) override;
 	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallSegment& wall);
+	friend void draw();
 };
