@@ -93,32 +93,36 @@ void WallSegment::collisionRespond(Ball& ball)
 	return;
 }
 
-std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallDot& wall)
+std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallDot& wall)
 {
 	if (DOUBLE_EPS::eq(ball.v.length(), 0) || (wall.p - ball.shape.p) * ball.v <= 0)
-		return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr);
+		return std::make_pair(std::numeric_limits<double>::infinity(), std::shared_ptr<Wall>());
 	std::vector<double> collision_time = Line(ball.shape.p, ball.v).cross_t(Circle(wall.p, ball.shape.r));
 	if (collision_time.empty())
-		return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr);
-	return std::make_pair(std::max(collision_time[0], 0.0), (Wall*)&wall);
+		return std::make_pair(std::numeric_limits<double>::infinity(), std::shared_ptr<Wall>());
+	return std::make_pair(std::max(collision_time[0], 0.0), std::make_shared<WallDot>(wall));
 }
 
-std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallLine& wall)
+std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallLine& wall)
 {
 	Vector2D project = wall.line.project(ball.shape.p);
 	if (DOUBLE_EPS::eq(ball.v.length(), 0) || (project - ball.shape.p) * ball.v <= 0)
-		return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr);
+		return std::make_pair(std::numeric_limits<double>::infinity(), std::shared_ptr<Wall>());
 	Line parallel(wall.line.move((ball.shape.p - project).zoomTo(ball.shape.r)));
 	double line_collision_time = Line(ball.shape.p, ball.v).cross_t(parallel);
-	return std::make_pair(std::max(line_collision_time, 0.0), (Wall*)&wall);
+	return std::make_pair(std::max(line_collision_time, 0.0), std::make_shared<WallLine>(wall));
 }
 
-std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallSegment& wall)
+std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallSegment& wall)
 {
-	std::pair<double, Wall*> ans = std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr), tmp;
+	std::pair<double, std::shared_ptr<Wall>> ans =
+		std::make_pair(std::numeric_limits<double>::infinity(), std::shared_ptr<Wall>()), tmp;
 	if (DOUBLE_EPS::eq(ball.v.length(), 0))
 		return ans;
-	ans = collisionDetect(ball, WallLine(wall.seg.get_line()));
+	Vector2D project = wall.seg.get_line().project(ball.shape.p),
+		delta = (ball.shape.p - project).zoomTo(ball.shape.r);
+	if (Segment(wall.seg.p1 + delta, wall.seg.p2 + delta).crossed(Line(ball.shape.p, ball.v)))
+		ans = collisionDetect(ball, WallLine(wall.seg.get_line()));
 	tmp = collisionDetect(ball, WallDot(wall.seg.p1));
 	if (tmp.first < ans.first) ans = tmp;
 	tmp = collisionDetect(ball, WallDot(wall.seg.p2));

@@ -53,8 +53,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				if (GetAsyncKeyState(VK_LEFT) & 0x8000) the_ball.addForce(Vector2D(-120, 0) * the_ball.get_mass());
 				if (GetAsyncKeyState(VK_RIGHT) & 0x8000) the_ball.addForce(Vector2D(120, 0) * the_ball.get_mass());
 				the_ball.addForce(g * the_ball.get_mass());
-				std::pair<double, Wall*> first_collide =
-					std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr),
+				std::pair<double, std::shared_ptr<Wall>> first_collide =
+					std::make_pair(std::numeric_limits<double>::infinity(), std::shared_ptr<Wall>()),
 					the_collide;
 				for (const auto& dot : dots) {
 					the_collide = collisionDetect(the_ball, dot);

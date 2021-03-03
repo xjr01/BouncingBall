@@ -3,6 +3,7 @@
 #include <vector2d.h>
 #include <geometry2d.h>
 #include <utility>
+#include <memory>
 
 extern const double time_step; // In seconds
 extern void draw();
@@ -29,12 +30,12 @@ public:
 
 	void addForce(Vector2D force);
 	void integrate(double time_step); // call after doing all the collision detect
-	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallDot& wall);
+	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallDot& wall);
 		/* returns how many seconds before the collision happens, returns inf if no collision at all
 		 * and which part of the wall will be touching the 
 		 */
-	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallLine& wall);
-	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallSegment& wall);
+	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallLine& wall);
+	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallSegment& wall);
 	friend void draw();
 
 	friend class Wall;
@@ -60,7 +61,7 @@ public:
 	explicit WallDot(Vector2D p, double elasticity = .3);
 
 	void collisionRespond(Ball& ball) override;
-	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallDot& wall);
+	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallDot& wall);
 	friend void draw();
 };
 
@@ -72,7 +73,7 @@ public:
 	explicit WallLine(Line line, double elasticity = .8);
 
 	void collisionRespond(Ball& ball) override;
-	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallLine& wall);
+	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallLine& wall);
 	friend void draw();
 };
 
@@ -84,6 +85,6 @@ public:
 	explicit WallSegment(Segment seg, double elasticity = .8);
 
 	void collisionRespond(Ball& ball) override;
-	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallSegment& wall);
+	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallSegment& wall);
 	friend void draw();
 };
