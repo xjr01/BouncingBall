@@ -82,14 +82,12 @@ void WallSegment::collisionRespond(Ball& ball)
 
 std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallDot& wall)
 {
-	if (DOUBLE_EPS::eq(ball.v.length(), 0))
+	if (DOUBLE_EPS::eq(ball.v.length(), 0) || (wall.p - ball.shape.p) * ball.v <= 0)
 		return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr);
 	std::vector<double> collision_time = Line(ball.shape.p, ball.v).cross_t(Circle(wall.p, ball.shape.r));
-	while (!collision_time.empty() && DOUBLE_EPS::lt(collision_time[0], 0))
-		collision_time.erase(collision_time.begin());
 	if (collision_time.empty())
 		return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr);
-	return std::make_pair(collision_time[0], (Wall*)&wall);
+	return std::make_pair(std::max(collision_time[0], 0.0), (Wall*)&wall);
 }
 
 std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallSegment& wall)
