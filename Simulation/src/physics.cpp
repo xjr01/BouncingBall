@@ -44,6 +44,7 @@ void Ball::integrate(double time_step)
 {
 	shape.p += v * time_step;
 	v += a * time_step;
+	a = Vector2D(0, 0);
 	return;
 }
 
