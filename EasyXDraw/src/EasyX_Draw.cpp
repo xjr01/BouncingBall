@@ -93,10 +93,10 @@ void setCurrentColor(Color color)
 
 void drawLine(Segment seg, double width, Color color)
 {
-	int l = fitInRange((int)(std::min(seg.p1.x, seg.p2.x) - width - 1.0), 0, window_size.first),
-		r = fitInRange((int)(std::max(seg.p1.x, seg.p2.x) + width + 1.0), 0, window_size.first),
-		u = fitInRange((int)(std::min(seg.p1.y, seg.p2.y) - width - 1.0), 0, window_size.second),
-		d = fitInRange((int)(std::max(seg.p1.y, seg.p2.y) + width + 1.0), 0, window_size.second);
+	int l = fitInRange((int)(std::min(seg.p1.x, seg.p2.x) - width - 1.0), 0, window_size.first - 1),
+		r = fitInRange((int)(std::max(seg.p1.x, seg.p2.x) + width + 1.0), 0, window_size.first - 1),
+		u = fitInRange((int)(std::min(seg.p1.y, seg.p2.y) - width - 1.0), 0, window_size.second - 1),
+		d = fitInRange((int)(std::max(seg.p1.y, seg.p2.y) + width + 1.0), 0, window_size.second - 1);
 	for (int y = u; y <= d; ++y)
 		for (int x = l; x <= r; ++x)
 			if (DOUBLE_EPS::leq(seg.distance(Vector2D(x, y)), width)) {
@@ -112,10 +112,10 @@ void drawLine(Vector2D a, Vector2D b, double width, Color color)
 
 void drawCircle(Circle cir, double width, Color color)
 {
-	int l = fitInRange((int)(cir.p.x - cir.r - width - 1.0), 0, window_size.first),
-		r = fitInRange((int)(cir.p.x + cir.r + width + 1.0), 0, window_size.first),
-		u = fitInRange((int)(cir.p.y - cir.r - width - 1.0), 0, window_size.second),
-		d = fitInRange((int)(cir.p.y + cir.r + width + 1.0), 0, window_size.second);
+	int l = fitInRange((int)(cir.p.x - cir.r - width - 1.0), 0, window_size.first - 1),
+		r = fitInRange((int)(cir.p.x + cir.r + width + 1.0), 0, window_size.first - 1),
+		u = fitInRange((int)(cir.p.y - cir.r - width - 1.0), 0, window_size.second - 1),
+		d = fitInRange((int)(cir.p.y + cir.r + width + 1.0), 0, window_size.second - 1);
 	for (int y = u; y <= d; ++y)
 		for (int x = l; x <= r; ++x)
 			if (DOUBLE_EPS::leq(abs((cir.p - Vector2D(x, y)).length() - cir.r), width)) {
@@ -131,10 +131,10 @@ void drawCircle(Vector2D p, double r, double width, Color color)
 
 void drawSolidCircle(Circle cir, Color color)
 {
-	int l = fitInRange((int)(cir.p.x - cir.r - 1.0), 0, window_size.first),
-		r = fitInRange((int)(cir.p.x + cir.r + 1.0), 0, window_size.first),
-		u = fitInRange((int)(cir.p.y - cir.r - 1.0), 0, window_size.second),
-		d = fitInRange((int)(cir.p.y + cir.r + 1.0), 0, window_size.second);
+	int l = fitInRange((int)(cir.p.x - cir.r - 1.0), 0, window_size.first - 1),
+		r = fitInRange((int)(cir.p.x + cir.r + 1.0), 0, window_size.first - 1),
+		u = fitInRange((int)(cir.p.y - cir.r - 1.0), 0, window_size.second - 1),
+		d = fitInRange((int)(cir.p.y + cir.r + 1.0), 0, window_size.second - 1);
 	for (int y = u; y <= d; ++y)
 		for (int x = l; x <= r; ++x)
 			if (DOUBLE_EPS::leq((cir.p - Vector2D(x, y)).length(), cir.r)) {
