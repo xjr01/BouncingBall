@@ -30,13 +30,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	the_ball.set_m(1);
 	the_ball.set_shape(Circle(Vector2D(367, 30), 10));
 	the_ball.set_v(Vector2D(0, 0));
-	for (int y = 200; y <= 850; y += 60)
+	for (int y = 660; y <= 850; y += 60)
 		for (int x = 30; x <= 1200; x += 30)
 			dots.push_back(WallDot(Vector2D(x, y)));
-	for (int y = 230; y <= 850; y += 60)
+	for (int y = 690; y <= 850; y += 60)
 		for (int x = 45; x <= 1200; x += 30)
 			dots.push_back(WallDot(Vector2D(x, y)));
 	segs.push_back(WallSegment(Segment(Vector2D(30, 850), Vector2D(1400, 850))));
+
+	segs.push_back(WallSegment(Segment(Vector2D(300, 200), Vector2D(250, 300))));
+	segs.push_back(WallSegment(Segment(Vector2D(300, 400), Vector2D(250, 300))));
+	segs.push_back(WallSegment(Segment(Vector2D(300, 400), Vector2D(350, 300))));
+	segs.push_back(WallSegment(Segment(Vector2D(300, 200), Vector2D(350, 300))));
+
+	segs.push_back(WallSegment(Segment(Vector2D(200, 350), Vector2D(150, 450))));
+	segs.push_back(WallSegment(Segment(Vector2D(200, 550), Vector2D(150, 450))));
+	segs.push_back(WallSegment(Segment(Vector2D(200, 550), Vector2D(250, 450))));
+	segs.push_back(WallSegment(Segment(Vector2D(200, 350), Vector2D(250, 450))));
+
+	segs.push_back(WallSegment(Segment(Vector2D(400, 350), Vector2D(350, 450))));
+	segs.push_back(WallSegment(Segment(Vector2D(400, 550), Vector2D(350, 450))));
+	segs.push_back(WallSegment(Segment(Vector2D(400, 550), Vector2D(450, 450))));
+	segs.push_back(WallSegment(Segment(Vector2D(400, 350), Vector2D(450, 450))));
+
 	Vector2D g(0, 98);
 	draw();
 
