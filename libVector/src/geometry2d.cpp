@@ -97,6 +97,17 @@ Line& Line::rotate_degree_(double angle_degree)
 	return rotate_(angle_degree / 180.0 * pi);
 }
 
+Line Line::move(Vector2D delta) const
+{
+	return Line(p + delta, v);
+}
+
+Line& Line::move_(Vector2D delta)
+{
+	p += delta;
+	return *this;
+}
+
 Segment::Segment(Vector2D p1, Vector2D p2) : p1(p1), p2(p2), line(p1, p2, true)
 {
 }

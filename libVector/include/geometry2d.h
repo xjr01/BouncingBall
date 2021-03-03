@@ -28,6 +28,8 @@ public:
 	Line& rotate_(double angle);
 	Line rotate_degree(double angle_degree) const;
 	Line& rotate_degree_(double angle_degree);
+	Line move(Vector2D delta) const;
+	Line& move_(Vector2D delta);
 };
 
 class Segment {
