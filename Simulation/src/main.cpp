@@ -36,16 +36,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			dots.push_back(WallDot(Vector2D(x, y)));
 	for (int x = 30; x <= 1200; x += 10)
 		dots.push_back(WallDot(Vector2D(x, 850)));
-	Vector2D g(0, .3);
+	Vector2D g(0, 98);
 	draw();
 
 	double real_lst_time = (double)clock() / CLOCKS_PER_SEC, real_cur_time, // draw time
 		time_passed = 0; // simulation time
 	bool drew = false;
-	while (!GetAsyncKeyState(VK_ESCAPE)) {
+	while (!(GetAsyncKeyState(VK_ESCAPE) & 0x8000)) {
 		if (time_passed < draw_time_step) {
 			double time_step_remaining = time_step;
 			while (DOUBLE_EPS::gt(time_step_remaining, 0)) {
+				if (GetAsyncKeyState(VK_UP) & 0x8000) the_ball.addForce(Vector2D(0, -500) * the_ball.get_mass());
+				if (GetAsyncKeyState(VK_DOWN) & 0x8000) the_ball.addForce(Vector2D(0, 120) * the_ball.get_mass());
+				if (GetAsyncKeyState(VK_LEFT) & 0x8000) the_ball.addForce(Vector2D(-120, 0) * the_ball.get_mass());
+				if (GetAsyncKeyState(VK_RIGHT) & 0x8000) the_ball.addForce(Vector2D(120, 0) * the_ball.get_mass());
 				the_ball.addForce(g * the_ball.get_mass());
 				std::pair<double, Wall*> first_collide =
 					std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr),
