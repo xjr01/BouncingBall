@@ -84,7 +84,7 @@ std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallDot& wall)
 	if (DOUBLE_EPS::eq(ball.v.length(), 0))
 		return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr);
 	std::vector<double> collision_time = Line(ball.shape.p, ball.v).cross_t(Circle(wall.p, ball.shape.r));
-	while (!collision_time.empty() && collision_time[0] < 0)
+	while (!collision_time.empty() && DOUBLE_EPS::lt(collision_time[0], 0))
 		collision_time.erase(collision_time.begin());
 	if (collision_time.empty())
 		return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr);
