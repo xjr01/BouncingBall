@@ -26,7 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	FlushBatchDraw();
 
 	the_ball.set_m(1);
-	the_ball.set_shape(Circle(Vector2D(267, 30), 10));
+	the_ball.set_shape(Circle(Vector2D(367, 30), 10));
 	the_ball.set_v(Vector2D(0, 0));
 	for (int y = 200; y <= 850; y += 60)
 		for (int x = 30; x <= 1200; x += 30)
@@ -40,7 +40,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	draw();
 
 	double real_lst_time = (double)clock() / CLOCKS_PER_SEC, real_cur_time, // draw time
-		time_passed = 0; // simulation time
+		time_passed = 0, // simulation time
+		speed_rate = 1.0; // draw speed
 	bool drew = false;
 	while (!(GetAsyncKeyState(VK_ESCAPE) & 0x8000)) {
 		if (time_passed < draw_time_step) {
@@ -72,9 +73,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 			time_passed += time_step;
 		}
+		if (!((GetAsyncKeyState(VK_F3) & 0x8001) ^ 0x8001)) speed_rate *= 2;
+		if (!((GetAsyncKeyState(VK_F4) & 0x8001) ^ 0x8001)) speed_rate /= 2;
 		real_cur_time = (double)clock() / CLOCKS_PER_SEC;
-		if (real_cur_time - real_lst_time >= draw_time_step && time_passed >= draw_time_step) {
-			real_cur_time = real_lst_time;
+		if (real_cur_time - real_lst_time >= draw_time_step / speed_rate && time_passed >= draw_time_step) {
+			real_lst_time = real_cur_time;
 			time_passed = 0;
 			draw();
 		}
