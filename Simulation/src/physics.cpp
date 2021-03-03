@@ -70,13 +70,26 @@ void WallDot::collisionRespond(Ball& ball)
 	return;
 }
 
+WallLine::WallLine(Line line, double elasticity) : line(line), Wall(elasticity)
+{
+}
+
+void WallLine::collisionRespond(Ball& ball)
+{
+	Vector2D project = line.project(ball.shape.p), n_cap = (ball.shape.p - project).zoomTo(1);
+	Vector2D vn = (ball.v * n_cap) * n_cap,
+		vt = ball.v - vn;
+	vn *= -elasticity;
+	ball.v = vn + vt;
+	return;
+}
+
 WallSegment::WallSegment(Segment seg, double elasticity) : seg(seg), Wall(elasticity)
 {
 }
 
 void WallSegment::collisionRespond(Ball& ball)
 {
-	// TODO
 	return;
 }
 
@@ -90,8 +103,25 @@ std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallDot& wall)
 	return std::make_pair(std::max(collision_time[0], 0.0), (Wall*)&wall);
 }
 
+std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallLine& wall)
+{
+	Vector2D project = wall.line.project(ball.shape.p);
+	if (DOUBLE_EPS::eq(ball.v.length(), 0) || (project - ball.shape.p) * ball.v <= 0)
+		return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr);
+	Line parallel(wall.line.move((ball.shape.p - project).zoomTo(ball.shape.r)));
+	double line_collision_time = Line(ball.shape.p, ball.v).cross_t(parallel);
+	return std::make_pair(std::max(line_collision_time, 0.0), (Wall*)&wall);
+}
+
 std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallSegment& wall)
 {
-	// TODO
-	return std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr);
+	std::pair<double, Wall*> ans = std::make_pair(std::numeric_limits<double>::infinity(), (Wall*)nullptr), tmp;
+	if (DOUBLE_EPS::eq(ball.v.length(), 0))
+		return ans;
+	ans = collisionDetect(ball, WallLine(wall.seg.get_line()));
+	tmp = collisionDetect(ball, WallDot(wall.seg.p1));
+	if (tmp.first < ans.first) ans = tmp;
+	tmp = collisionDetect(ball, WallDot(wall.seg.p2));
+	if (tmp.first < ans.first) ans = tmp;
+	return ans;
 }

@@ -8,11 +8,13 @@ const double draw_time_step = .02;
 
 Ball the_ball;
 std::vector<WallDot> dots;
+std::vector<WallSegment> segs;
 
 void draw() {
 	cleardevice();
 	drawSolidCircle(the_ball.shape, Color(200, 0, 200));
 	for (const auto& dot : dots) drawDot(dot.p, 1.5);
+	for (const auto& seg : segs) drawLine(seg.seg, 1.5);
 	FlushBatchDraw();
 	return;
 }
@@ -34,8 +36,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	for (int y = 230; y <= 850; y += 60)
 		for (int x = 45; x <= 1200; x += 30)
 			dots.push_back(WallDot(Vector2D(x, y)));
-	for (int x = 30; x <= 1200; x += 10)
-		dots.push_back(WallDot(Vector2D(x, 850)));
+	segs.push_back(WallSegment(Segment(Vector2D(30, 850), Vector2D(1400, 850))));
 	Vector2D g(0, 98);
 	draw();
 
@@ -57,6 +58,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					the_collide;
 				for (const auto& dot : dots) {
 					the_collide = collisionDetect(the_ball, dot);
+					if (the_collide.first < first_collide.first)
+						first_collide = the_collide;
+				}
+				for (const auto& seg : segs) {
+					the_collide = collisionDetect(the_ball, seg);
 					if (the_collide.first < first_collide.first)
 						first_collide = the_collide;
 				}

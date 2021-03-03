@@ -9,6 +9,7 @@ extern void draw();
 
 class Wall;
 class WallDot;
+class WallLine;
 class WallSegment;
 
 class Ball {
@@ -32,11 +33,13 @@ public:
 		/* returns how many seconds before the collision happens, returns inf if no collision at all
 		 * and which part of the wall will be touching the 
 		 */
+	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallLine& wall);
 	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallSegment& wall);
 	friend void draw();
 
 	friend class Wall;
 	friend class WallDot;
+	friend class WallLine;
 	friend class WallSegment;
 };
 
@@ -58,6 +61,18 @@ public:
 
 	void collisionRespond(Ball& ball) override;
 	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallDot& wall);
+	friend void draw();
+};
+
+class WallLine : public Wall {
+private:
+	Line line;
+public:
+	WallLine() = default;
+	explicit WallLine(Line line, double elasticity = .8);
+
+	void collisionRespond(Ball& ball) override;
+	friend std::pair<double, Wall*> collisionDetect(const Ball& ball, const WallLine& wall);
 	friend void draw();
 };
 
