@@ -93,6 +93,8 @@ void setCurrentColor(Color color)
 
 void drawLine(Segment seg, double width, Color color)
 {
+	line(seg.p1.x, seg.p1.y, seg.p2.x, seg.p2.y);
+	return;
 	int l = fitInRange((int)(std::min(seg.p1.x, seg.p2.x) - width - 1.0), 0, window_size.first - 1),
 		r = fitInRange((int)(std::max(seg.p1.x, seg.p2.x) + width + 1.0), 0, window_size.first - 1),
 		u = fitInRange((int)(std::min(seg.p1.y, seg.p2.y) - width - 1.0), 0, window_size.second - 1),
