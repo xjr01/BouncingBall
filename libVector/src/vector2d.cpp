@@ -114,6 +114,26 @@ Vector2D& Vector2D::rotate_degree_(double angle_degree)
     return *this = rotate_degree(angle_degree);
 }
 
+Vector2D Vector2D::rotate_with_center(double angle, Vector2D center) const
+{
+    return (*this - center).rotate(angle) + center;
+}
+
+Vector2D& Vector2D::rotate_with_center_(double angle, Vector2D center)
+{
+    return *this = this->rotate_with_center(angle, center);
+}
+
+Vector2D Vector2D::rotate_with_center_degree(double angle_degree, Vector2D center) const
+{
+    return rotate_with_center(angle_degree / 180.0 * pi, center);
+}
+
+Vector2D& Vector2D::rotate_with_center_degree_(double angle_degree, Vector2D center)
+{
+    return rotate_with_center_(angle_degree / 180.0 * pi, center);
+}
+
 Vector2D Vector2D::shear(double hx, double hy) const
 {
     return Vector2D(x + y * hx, x * hy + y);

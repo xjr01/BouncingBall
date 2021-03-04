@@ -30,6 +30,10 @@ public:
 	Vector2D& rotate_(double angle);
 	Vector2D rotate_degree(double angle_degree) const;
 	Vector2D& rotate_degree_(double angle_degree);
+	Vector2D rotate_with_center(double angle, Vector2D center) const;
+	Vector2D& rotate_with_center_(double angle, Vector2D center);
+	Vector2D rotate_with_center_degree(double angle_degree, Vector2D center) const;
+	Vector2D& rotate_with_center_degree_(double angle_degree, Vector2D center);
 	Vector2D shear(double hx, double hy) const;
 	Vector2D& shear_(double hx, double hy);
 
