@@ -19,6 +19,17 @@ void draw() {
 	return;
 }
 
+void rotate(double angle, Vector2D center) {
+	the_ball.shape.p.rotate_with_center_(angle, center);
+	for (auto& dot : dots) dot.p.rotate_with_center_(angle, center);
+	for (auto& seg : segs)
+		seg.seg = Segment(
+			seg.seg.p1.rotate_with_center(angle, center),
+			seg.seg.p2.rotate_with_center(angle, center)
+		);
+	return;
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 	std::pair<int, int> window_size = createWin(-1, -1, -1, -1, true);
 
@@ -27,18 +38,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	setCurrentColor(Color(0, 200, 200));
 	FlushBatchDraw();
 
+	printf("%d %d\n", window_size.first, window_size.second);
 	the_ball.set_m(1);
-	the_ball.set_shape(Circle(Vector2D(367, 30), 10));
+	the_ball.set_shape(Circle(Vector2D(960, 540) / 1920 * 1536, 10));
 	the_ball.set_v(Vector2D(0, 0));
-	for (int y = 660; y <= 850; y += 60)
-		for (int x = 30; x <= 1200; x += 30)
-			dots.push_back(WallDot(Vector2D(x, y)));
-	for (int y = 690; y <= 850; y += 60)
-		for (int x = 45; x <= 1200; x += 30)
-			dots.push_back(WallDot(Vector2D(x, y)));
-	segs.push_back(WallSegment(Segment(Vector2D(30, 850), Vector2D(1400, 850))));
+	for (int y = 225; y <= 860; y += 60)
+		for (int x = 645; x <= 1280; x += 30)
+			dots.push_back(WallDot(Vector2D(x, y) / 1920 * 1536));
+	for (int y = 255; y <= 860; y += 60)
+		for (int x = 660; x <= 1280; x += 30)
+			dots.push_back(WallDot(Vector2D(x, y) / 1920 * 1536));
+	segs.push_back(WallSegment(Segment(Vector2D(580, 160) / 1920 * 1536, Vector2D(1340, 160) / 1920 * 1536)));
+	segs.push_back(WallSegment(Segment(Vector2D(1340, 920) / 1920 * 1536, Vector2D(1340, 160) / 1920 * 1536)));
+	segs.push_back(WallSegment(Segment(Vector2D(1340, 920) / 1920 * 1536, Vector2D(580, 920) / 1920 * 1536)));
+	segs.push_back(WallSegment(Segment(Vector2D(580, 160) / 1920 * 1536, Vector2D(580, 920) / 1920 * 1536)));
 
-	segs.push_back(WallSegment(Segment(Vector2D(300, 200), Vector2D(250, 300))));
+	/*segs.push_back(WallSegment(Segment(Vector2D(300, 200), Vector2D(250, 300))));
 	segs.push_back(WallSegment(Segment(Vector2D(300, 400), Vector2D(250, 300))));
 	segs.push_back(WallSegment(Segment(Vector2D(300, 400), Vector2D(350, 300))));
 	segs.push_back(WallSegment(Segment(Vector2D(300, 200), Vector2D(350, 300))));
@@ -51,7 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	segs.push_back(WallSegment(Segment(Vector2D(400, 350), Vector2D(350, 450))));
 	segs.push_back(WallSegment(Segment(Vector2D(400, 550), Vector2D(350, 450))));
 	segs.push_back(WallSegment(Segment(Vector2D(400, 550), Vector2D(450, 450))));
-	segs.push_back(WallSegment(Segment(Vector2D(400, 350), Vector2D(450, 450))));
+	segs.push_back(WallSegment(Segment(Vector2D(400, 350), Vector2D(450, 450))));*/
 
 	Vector2D g(0, 98);
 	draw();
@@ -97,6 +112,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 		if (!((GetAsyncKeyState(VK_F3) & 0x8001) ^ 0x8001)) speed_rate *= 2;
 		if (!((GetAsyncKeyState(VK_F4) & 0x8001) ^ 0x8001)) speed_rate /= 2;
+		if (GetAsyncKeyState('A') & 0x8000)
+			rotate(-.001 /180 * pi, Vector2D(window_size.first / 2, window_size.second / 2));
+		if (GetAsyncKeyState('D') & 0x8000)
+			rotate(.001 / 180 * pi, Vector2D(window_size.first / 2, window_size.second / 2));
 		real_cur_time = (double)clock() / CLOCKS_PER_SEC;
 		if (real_cur_time - real_lst_time >= draw_time_step / speed_rate && time_passed >= draw_time_step) {
 			real_lst_time = real_cur_time;

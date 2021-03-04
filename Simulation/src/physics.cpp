@@ -1,5 +1,6 @@
 #include "physics.h"
 #include <math_ex.h>
+#include <cstring>
 
 const double time_step = .01;
 
@@ -121,8 +122,14 @@ std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const
 		return ans;
 	Vector2D project = wall.seg.get_line().project(ball.shape.p),
 		delta = (ball.shape.p - project).zoomTo(ball.shape.r);
-	if (Segment(wall.seg.p1 + delta, wall.seg.p2 + delta).crossed(Line(ball.shape.p, ball.v)))
-		ans = collisionDetect(ball, WallLine(wall.seg.get_line()));
+	try {
+		if (Segment(wall.seg.p1 + delta, wall.seg.p2 + delta).crossed(Line(ball.shape.p, ball.v)))
+			ans = collisionDetect(ball, WallLine(wall.seg.get_line()));
+	}
+	catch (const char* info) {
+		if (!strcmp(info, "Parallel lines"));
+		else throw info;
+	}
 	tmp = collisionDetect(ball, WallDot(wall.seg.p1));
 	if (tmp.first < ans.first) ans = tmp;
 	tmp = collisionDetect(ball, WallDot(wall.seg.p2));

@@ -37,6 +37,7 @@ public:
 	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallLine& wall);
 	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallSegment& wall);
 	friend void draw();
+	friend void rotate(double angle, Vector2D center);
 
 	friend class Wall;
 	friend class WallDot;
@@ -58,11 +59,12 @@ private:
 	Vector2D p;
 public:
 	WallDot() = default;
-	explicit WallDot(Vector2D p, double elasticity = .3);
+	explicit WallDot(Vector2D p, double elasticity = .8);
 
 	void collisionRespond(Ball& ball) override;
 	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallDot& wall);
 	friend void draw();
+	friend void rotate(double angle, Vector2D center);
 };
 
 class WallLine : public Wall {
@@ -75,6 +77,7 @@ public:
 	void collisionRespond(Ball& ball) override;
 	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallLine& wall);
 	friend void draw();
+	friend void rotate(double angle, Vector2D center);
 };
 
 class WallSegment : public Wall {
@@ -87,4 +90,5 @@ public:
 	void collisionRespond(Ball& ball) override;
 	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallSegment& wall);
 	friend void draw();
+	friend void rotate(double angle, Vector2D center);
 };
