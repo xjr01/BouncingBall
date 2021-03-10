@@ -39,15 +39,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	FlushBatchDraw();
 
 	printf("%d %d\n", window_size.first, window_size.second);
-	the_ball.set_m(1);
-	the_ball.set_shape(Circle(Vector2D(960, 540) / 1920 * 1536, 10));
-	the_ball.set_v(Vector2D(0, 0));
+	the_ball.m = 1;
+	the_ball.shape = Circle(Vector2D(960, 540) / 1920 * 1536, 10);
+	the_ball.v = Vector2D(0, 0);
 	for (int y = 225; y <= 860; y += 60)
 		for (int x = 645; x <= 1280; x += 30)
 			dots.push_back(WallDot(Vector2D(x, y) / 1920 * 1536));
 	for (int y = 255; y <= 860; y += 60)
 		for (int x = 660; x <= 1280; x += 30)
-			dots.push_back(WallDot(Vector2D(x, y) / 1920 * 1536));
+			dots.push_back(WallDot(Vector2D(x, y) / 1920 * 1536)); // */
 	segs.push_back(WallSegment(Segment(Vector2D(580, 160) / 1920 * 1536, Vector2D(1340, 160) / 1920 * 1536)));
 	segs.push_back(WallSegment(Segment(Vector2D(1340, 920) / 1920 * 1536, Vector2D(1340, 160) / 1920 * 1536)));
 	segs.push_back(WallSegment(Segment(Vector2D(1340, 920) / 1920 * 1536, Vector2D(580, 920) / 1920 * 1536)));
@@ -79,11 +79,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		if (time_passed < draw_time_step) {
 			double time_step_remaining = time_step;
 			while (DOUBLE_EPS::gt(time_step_remaining, 0)) {
-				if (GetAsyncKeyState(VK_UP) & 0x8000) the_ball.addForce(Vector2D(0, -500) * the_ball.get_mass());
-				if (GetAsyncKeyState(VK_DOWN) & 0x8000) the_ball.addForce(Vector2D(0, 120) * the_ball.get_mass());
-				if (GetAsyncKeyState(VK_LEFT) & 0x8000) the_ball.addForce(Vector2D(-120, 0) * the_ball.get_mass());
-				if (GetAsyncKeyState(VK_RIGHT) & 0x8000) the_ball.addForce(Vector2D(120, 0) * the_ball.get_mass());
-				the_ball.addForce(g * the_ball.get_mass());
+				if (GetAsyncKeyState(VK_UP) & 0x8000) the_ball.addForce(Vector2D(0, -500) * the_ball.m);
+				if (GetAsyncKeyState(VK_DOWN) & 0x8000) the_ball.addForce(Vector2D(0, 120) * the_ball.m);
+				if (GetAsyncKeyState(VK_LEFT) & 0x8000) the_ball.addForce(Vector2D(-120, 0) * the_ball.m);
+				if (GetAsyncKeyState(VK_RIGHT) & 0x8000) the_ball.addForce(Vector2D(120, 0) * the_ball.m);
+				the_ball.addForce(g * the_ball.m);
 				std::pair<double, std::shared_ptr<Wall>> first_collide =
 					std::make_pair(std::numeric_limits<double>::infinity(), std::shared_ptr<Wall>()),
 					the_collide;
@@ -112,10 +112,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		}
 		if (!((GetAsyncKeyState(VK_F3) & 0x8001) ^ 0x8001)) speed_rate *= 2;
 		if (!((GetAsyncKeyState(VK_F4) & 0x8001) ^ 0x8001)) speed_rate /= 2;
+		double fast_rotate = .001, slow_rotate = .0001,
+			rotate_rate = (GetAsyncKeyState(VK_LCONTROL) & 0x8000) ? fast_rotate : slow_rotate;
 		if (GetAsyncKeyState('A') & 0x8000)
-			rotate(-.001 /180 * pi, Vector2D(window_size.first / 2, window_size.second / 2));
+			rotate(-rotate_rate / 180 * pi, Vector2D(window_size.first / 2, window_size.second / 2));
 		if (GetAsyncKeyState('D') & 0x8000)
-			rotate(.001 / 180 * pi, Vector2D(window_size.first / 2, window_size.second / 2));
+			rotate(rotate_rate / 180 * pi, Vector2D(window_size.first / 2, window_size.second / 2));
 		real_cur_time = (double)clock() / CLOCKS_PER_SEC;
 		if (real_cur_time - real_lst_time >= draw_time_step / speed_rate && time_passed >= draw_time_step) {
 			real_lst_time = real_cur_time;
