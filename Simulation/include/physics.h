@@ -15,34 +15,16 @@ class WallSegment;
 
 class Ball {
 private:
+	Vector2D a;
+public:
 	Circle shape;
 	Vector2D v;
 	double m;
-	Vector2D a;
-public:
 	Ball();
 	Ball(Circle shape, Vector2D v = Vector2D(0, 0), double m = 1);
 
-	void set_shape(const Circle& shape);
-	void set_v(const Vector2D& v);
-	void set_m(const double& m);
-	double get_mass();
-
 	void addForce(Vector2D force);
 	void integrate(double time_step); // call after doing all the collision detect
-	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallDot& wall);
-		/* returns how many seconds before the collision happens, returns inf if no collision at all
-		 * and which part of the wall will be touching the 
-		 */
-	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallLine& wall);
-	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallSegment& wall);
-	friend void draw();
-	friend void rotate(double angle, Vector2D center);
-
-	friend class Wall;
-	friend class WallDot;
-	friend class WallLine;
-	friend class WallSegment;
 };
 
 class Wall {
@@ -63,6 +45,9 @@ public:
 
 	void collisionRespond(Ball& ball) override;
 	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallDot& wall);
+		/* returns how many seconds before the collision happens, returns inf if no collision at all
+		 * and which part of the wall will be touching the 
+		 */
 	friend void draw();
 	friend void rotate(double angle, Vector2D center);
 };

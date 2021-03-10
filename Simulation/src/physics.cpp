@@ -12,29 +12,6 @@ Ball::Ball(Circle shape, Vector2D v, double m) : shape(shape), v(v), m(m), a(Vec
 {
 }
 
-void Ball::set_shape(const Circle& shape)
-{
-	this->shape = shape;
-	return;
-}
-
-void Ball::set_v(const Vector2D& v)
-{
-	this->v = v;
-	return;
-}
-
-void Ball::set_m(const double& m)
-{
-	this->m = m;
-	return;
-}
-
-double Ball::get_mass()
-{
-	return m;
-}
-
 void Ball::addForce(Vector2D force)
 {
 	this->a += force / m;
