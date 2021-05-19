@@ -34,7 +34,7 @@ Wall::Wall(double elasticity) : elasticity(elasticity)
 {
 }
 
-WallDot::WallDot(Vector2D p, double elasticity) : p(p), Wall(elasticity)
+WallDot::WallDot(Vector2D p, double elasticity) : Wall(elasticity), p(p)
 {
 }
 
@@ -48,7 +48,7 @@ void WallDot::collisionRespond(Ball& ball)
 	return;
 }
 
-WallLine::WallLine(Line line, double elasticity) : line(line), Wall(elasticity)
+WallLine::WallLine(Line line, double elasticity) : Wall(elasticity), line(line)
 {
 }
 
@@ -62,7 +62,7 @@ void WallLine::collisionRespond(Ball& ball)
 	return;
 }
 
-WallSegment::WallSegment(Segment seg, double elasticity) : seg(seg), Wall(elasticity)
+WallSegment::WallSegment(Segment seg, double elasticity) : Wall(elasticity), seg(seg)
 {
 }
 
@@ -101,15 +101,15 @@ std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const
 		delta = (ball.shape.p - project).zoomTo(ball.shape.r);
 	try {
 		if (Segment(wall.seg.p1 + delta, wall.seg.p2 + delta).crossed(Line(ball.shape.p, ball.v)))
-			ans = collisionDetect(ball, WallLine(wall.seg.get_line()));
+			ans = collisionDetect(ball, WallLine(wall.seg.get_line(), wall.elasticity));
 	}
 	catch (const char* info) {
 		if (!strcmp(info, "Parallel lines"));
 		else throw info;
 	}
-	tmp = collisionDetect(ball, WallDot(wall.seg.p1));
+	tmp = collisionDetect(ball, WallDot(wall.seg.p1, wall.elasticity));
 	if (tmp.first < ans.first) ans = tmp;
-	tmp = collisionDetect(ball, WallDot(wall.seg.p2));
+	tmp = collisionDetect(ball, WallDot(wall.seg.p2, wall.elasticity));
 	if (tmp.first < ans.first) ans = tmp;
 	return ans;
 }
