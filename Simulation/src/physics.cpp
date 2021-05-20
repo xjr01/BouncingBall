@@ -100,7 +100,8 @@ std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const
 	Vector2D project = wall.seg.get_line().project(ball.shape.p),
 		delta = (ball.shape.p - project).zoomTo(ball.shape.r);
 	try {
-		if (Segment(wall.seg.p1 + delta, wall.seg.p2 + delta).crossed(Line(ball.shape.p, ball.v)))
+		if (Segment(wall.seg.p1 + delta, wall.seg.p2 + delta).crossed(Line(ball.shape.p, ball.v))
+			&& DOUBLE_EPS::gt(Line(ball.shape.p, ball.v).cross_t(Segment(wall.seg.p1 + delta, wall.seg.p2 + delta).get_line()), 0))
 			ans = collisionDetect(ball, WallLine(wall.seg.get_line(), wall.elasticity));
 	}
 	catch (const char* info) {
