@@ -5,24 +5,29 @@
 #include <numeric>
 #include <algorithm>
 
+#define pWall std::shared_ptr<Wall>
+
 class BouncingBallDriver {
 private:
-	static const double simulation_time_step;
-	static const double draw_time_step;
+	static constexpr double simulation_time_step = .01;
+	static constexpr double draw_time_step = .02;
 
-	Ball the_ball;
+	std::vector<Ball> balls;
 	std::vector<WallDot> dots;
 	std::vector<WallSegment> segs;
 	Vector2D g;
 
-	std::shared_ptr<Wall> wall_collide;
+	// the id of the ball, and the wall object it run into
+	std::pair<int, pWall> wall_collide;
 	double wall_collide_time;
-	std::pair<std::shared_ptr<Ball>, std::shared_ptr<Ball>> ball_collide;
+	// the id of the two balls that collide
+	std::pair<int, int> ball_collide;
 	double ball_collide_time;
 
 	void draw() {
 		cleardevice();
-		drawSolidCircle(the_ball.shape, Color(200, 0, 200));
+		for (const auto& the_ball : balls)
+			drawSolidCircle(the_ball.shape, Color(200, 0, 200));
 		for (const auto& dot : dots) drawDot(dot.p, 1.5);
 		for (const auto& seg : segs) drawLine(seg.seg, 1.5);
 		FlushBatchDraw();
@@ -30,7 +35,8 @@ private:
 	}
 
 	void rotate(double angle, Vector2D center) {
-		the_ball.shape.p.rotate_with_center_(angle, center);
+		for (auto& the_ball : balls)
+			the_ball.shape.p.rotate_with_center_(angle, center);
 		for (auto& dot : dots) dot.p.rotate_with_center_(angle, center);
 		for (auto& seg : segs)
 			seg.seg = Segment(
@@ -41,9 +47,17 @@ private:
 	}
 
 	void initialize() {
-		the_ball.m = 1;
-		the_ball.shape = Circle(Vector2D(808, 200) / 1920 * 1536, 10);
-		the_ball.v = Vector2D(0, 0);
+		balls.clear();
+		dots.clear();
+		segs.clear();
+
+		balls.push_back(
+			Ball(
+				Circle(Vector2D(808, 200) / 1920 * 1536, 10),	// shape
+				Vector2D(0, 0),									// velocity
+				1.0												// mass
+			)
+		);
 
 		// cube wall 1
 		segs.push_back(WallSegment(Segment(Vector2D(800, 400) / 1920 * 1536, Vector2D(900, 500) / 1920 * 1536), .6));
@@ -86,21 +100,27 @@ private:
 	}
 
 	void wall_collision_detect() {
-		std::pair<double, std::shared_ptr<Wall>> first_collide =
-			std::make_pair(std::numeric_limits<double>::infinity(), std::shared_ptr<Wall>()),
-			the_collide;
-		for (const auto& dot : dots) {
-			the_collide = collisionDetect(the_ball, dot);
-			if (the_collide.first < first_collide.first)
-				first_collide = the_collide;
+		std::pair<double, pWall> the_collide;
+		for (int i = 0; i < balls.size(); ++i) {
+			const Ball& the_ball = balls[i];
+			for (const auto& dot : dots) {
+				the_collide = collisionDetect(the_ball, dot);
+				if (the_collide.first < wall_collide_time) {
+					wall_collide_time = the_collide.first;
+					wall_collide = make_pair(i, the_collide.second);
+				}
+			}
 		}
-		for (const auto& seg : segs) {
-			the_collide = collisionDetect(the_ball, seg);
-			if (the_collide.first < first_collide.first)
-				first_collide = the_collide;
+		for (int i = 0; i < balls.size(); ++i) {
+			const Ball& the_ball = balls[i];
+			for (const auto& seg : segs) {
+				the_collide = collisionDetect(the_ball, seg);
+				if (the_collide.first < wall_collide_time) {
+					wall_collide_time = the_collide.first;
+					wall_collide = make_pair(i, the_collide.second);
+				}
+			}
 		}
-		wall_collide_time = first_collide.first;
-		wall_collide = first_collide.second;
 		return;
 	}
 
@@ -109,8 +129,8 @@ private:
 	}
 
 	void collision_detect() {
-		wall_collide = nullptr;
-		ball_collide.first = ball_collide.second = nullptr;
+		wall_collide.first = -1; wall_collide.second = nullptr;
+		ball_collide.first = ball_collide.second = -1;
 		wall_collide_time = ball_collide_time = std::numeric_limits<double>::infinity();
 		wall_collision_detect();
 		ball_collision_detect();
@@ -118,8 +138,9 @@ private:
 	}
 
 	void wall_collision_respond() {
-		the_ball.integrate(wall_collide_time);
-		wall_collide->collisionRespond(the_ball);
+		for (auto& the_ball : balls)
+			the_ball.integrate(wall_collide_time);
+		wall_collide.second->collisionRespond(balls[wall_collide.first]);
 		return;
 	}
 
@@ -129,7 +150,8 @@ private:
 
 	void collision_respond(double& dt_remaining) {
 		if (min(wall_collide_time, ball_collide_time) > dt_remaining) {
-			the_ball.integrate(dt_remaining);
+			for (auto& the_ball : balls)
+				the_ball.integrate(dt_remaining);
 			dt_remaining = 0;
 			return;
 		}
@@ -143,11 +165,11 @@ private:
 	void advance(double dt) {
 		double time_step_remaining = dt;
 		while (DOUBLE_EPS::gt(time_step_remaining, 0)) {
-			if (GetAsyncKeyState(VK_UP) & 0x8000) the_ball.addForce(Vector2D(0, -500) * the_ball.m);
-			if (GetAsyncKeyState(VK_DOWN) & 0x8000) the_ball.addForce(Vector2D(0, 120) * the_ball.m);
-			if (GetAsyncKeyState(VK_LEFT) & 0x8000) the_ball.addForce(Vector2D(-120, 0) * the_ball.m);
-			if (GetAsyncKeyState(VK_RIGHT) & 0x8000) the_ball.addForce(Vector2D(120, 0) * the_ball.m);
-			the_ball.addForce(g);
+			if (GetAsyncKeyState(VK_UP) & 0x8000) balls[0].addForce(Vector2D(0, -500) * balls[0].m);
+			if (GetAsyncKeyState(VK_DOWN) & 0x8000) balls[0].addForce(Vector2D(0, 120) * balls[0].m);
+			if (GetAsyncKeyState(VK_LEFT) & 0x8000) balls[0].addForce(Vector2D(-120, 0) * balls[0].m);
+			if (GetAsyncKeyState(VK_RIGHT) & 0x8000) balls[0].addForce(Vector2D(120, 0) * balls[0].m);
+			balls[0].addForce(g);
 			collision_detect();
 			collision_respond(time_step_remaining);
 		}
@@ -197,6 +219,3 @@ public:
 		return;
 	}
 };
-
-const double BouncingBallDriver::simulation_time_step = .01,
-BouncingBallDriver::draw_time_step = .02;
