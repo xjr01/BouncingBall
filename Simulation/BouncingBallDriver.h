@@ -159,4 +159,4 @@ public:
 };
 
 const double BouncingBallDriver::simulation_time_step = .01,
-	BouncingBallDriver::draw_time_step = .02;
+BouncingBallDriver::draw_time_step = .02;
