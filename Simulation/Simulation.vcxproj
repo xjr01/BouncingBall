@@ -158,6 +158,7 @@
     <ClCompile Include="src\physics.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BouncingBallDriver.h" />
     <ClInclude Include="include\physics.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

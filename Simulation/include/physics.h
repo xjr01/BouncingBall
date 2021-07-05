@@ -5,7 +5,6 @@
 #include <utility>
 #include <memory>
 
-extern const double time_step; // In seconds
 extern void draw();
 
 class Wall;
@@ -48,8 +47,7 @@ public:
 		/* returns how many seconds before the collision happens, returns inf if no collision at all
 		 * and which part of the wall will be touching the 
 		 */
-	friend void draw();
-	friend void rotate(double angle, Vector2D center);
+	friend class BouncingBallDriver;
 };
 
 class WallLine : public Wall {
@@ -61,8 +59,7 @@ public:
 
 	void collisionRespond(Ball& ball) override;
 	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallLine& wall);
-	friend void draw();
-	friend void rotate(double angle, Vector2D center);
+	friend class BouncingBallDriver;
 };
 
 class WallSegment : public Wall {
@@ -74,6 +71,5 @@ public:
 
 	void collisionRespond(Ball& ball) override;
 	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallSegment& wall);
-	friend void draw();
-	friend void rotate(double angle, Vector2D center);
+	friend class BouncingBallDriver;
 };

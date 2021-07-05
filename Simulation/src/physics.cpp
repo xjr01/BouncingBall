@@ -2,8 +2,6 @@
 #include <math_ex.h>
 #include <cstring>
 
-const double time_step = .01;
-
 Ball::Ball() : shape(), v(), m(), a(Vector2D(0, 0))
 {
 }
