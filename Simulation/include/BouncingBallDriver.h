@@ -3,6 +3,7 @@
 #include <ctime>
 #include <math_ex.h>
 #include <numeric>
+#include <algorithm>
 
 class BouncingBallDriver {
 private:
@@ -13,6 +14,11 @@ private:
 	std::vector<WallDot> dots;
 	std::vector<WallSegment> segs;
 	Vector2D g;
+
+	std::shared_ptr<Wall> wall_collide;
+	double wall_collide_time;
+	std::pair<std::shared_ptr<Ball>, std::shared_ptr<Ball>> ball_collide;
+	double ball_collide_time;
 
 	void draw() {
 		cleardevice();
@@ -79,6 +85,61 @@ private:
 		return;
 	}
 
+	void wall_collision_detect() {
+		std::pair<double, std::shared_ptr<Wall>> first_collide =
+			std::make_pair(std::numeric_limits<double>::infinity(), std::shared_ptr<Wall>()),
+			the_collide;
+		for (const auto& dot : dots) {
+			the_collide = collisionDetect(the_ball, dot);
+			if (the_collide.first < first_collide.first)
+				first_collide = the_collide;
+		}
+		for (const auto& seg : segs) {
+			the_collide = collisionDetect(the_ball, seg);
+			if (the_collide.first < first_collide.first)
+				first_collide = the_collide;
+		}
+		wall_collide_time = first_collide.first;
+		wall_collide = first_collide.second;
+		return;
+	}
+
+	void ball_collision_detect() {
+		return;
+	}
+
+	void collision_detect() {
+		wall_collide = nullptr;
+		ball_collide.first = ball_collide.second = nullptr;
+		wall_collide_time = ball_collide_time = std::numeric_limits<double>::infinity();
+		wall_collision_detect();
+		ball_collision_detect();
+		return;
+	}
+
+	void wall_collision_respond() {
+		the_ball.integrate(wall_collide_time);
+		wall_collide->collisionRespond(the_ball);
+		return;
+	}
+
+	void ball_collision_respond() {
+		return;
+	}
+
+	void collision_respond(double& dt_remaining) {
+		if (min(wall_collide_time, ball_collide_time) > dt_remaining) {
+			the_ball.integrate(dt_remaining);
+			dt_remaining = 0;
+			return;
+		}
+		if (wall_collide_time < ball_collide_time)
+			wall_collision_respond();
+		else ball_collision_respond();
+		dt_remaining -= min(wall_collide_time, ball_collide_time);
+		return;
+	}
+
 	void advance(double dt) {
 		double time_step_remaining = dt;
 		while (DOUBLE_EPS::gt(time_step_remaining, 0)) {
@@ -86,30 +147,9 @@ private:
 			if (GetAsyncKeyState(VK_DOWN) & 0x8000) the_ball.addForce(Vector2D(0, 120) * the_ball.m);
 			if (GetAsyncKeyState(VK_LEFT) & 0x8000) the_ball.addForce(Vector2D(-120, 0) * the_ball.m);
 			if (GetAsyncKeyState(VK_RIGHT) & 0x8000) the_ball.addForce(Vector2D(120, 0) * the_ball.m);
-			the_ball.addForce(g * the_ball.m);
-			std::pair<double, std::shared_ptr<Wall>> first_collide =
-				std::make_pair(std::numeric_limits<double>::infinity(), std::shared_ptr<Wall>()),
-				the_collide;
-			for (const auto& dot : dots) {
-				the_collide = collisionDetect(the_ball, dot);
-				if (the_collide.first < first_collide.first)
-					first_collide = the_collide;
-			}
-			for (const auto& seg : segs) {
-				the_collide = collisionDetect(the_ball, seg);
-				if (the_collide.first < first_collide.first)
-					first_collide = the_collide;
-			}
-			double time_forward = first_collide.first;
-			if (time_forward <= time_step_remaining) {
-				the_ball.integrate(time_forward);
-				first_collide.second->collisionRespond(the_ball);
-				time_step_remaining -= time_forward;
-			}
-			else {
-				the_ball.integrate(time_step_remaining);
-				time_step_remaining = 0;
-			}
+			the_ball.addForce(g);
+			collision_detect();
+			collision_respond(time_step_remaining);
 		}
 		return;
 	}
