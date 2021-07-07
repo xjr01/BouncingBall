@@ -6,7 +6,7 @@
 extern const double pi;
 
 namespace DOUBLE_EPS {
-	const double eps = 1e-9;
+	const double eps = 1e-6;
 	bool eq(double a, double b);
 	bool neq(double a, double b);
 	bool lt(double a, double b);
