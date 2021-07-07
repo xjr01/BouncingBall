@@ -136,6 +136,8 @@ public:
 			// funnel
 			segs.push_back(WallSegment(Segment(Vector2D(552, 0), Vector2D(759, 207)), .2));
 			segs.push_back(WallSegment(Segment(Vector2D(984, 0), Vector2D(777, 207)), .2));
+			segs.push_back(WallSegment(Segment(Vector2D(759, 230), Vector2D(759, 207)), .2));
+			segs.push_back(WallSegment(Segment(Vector2D(777, 230), Vector2D(777, 207)), .2));
 
 			// stripes
 			const int stripe_width = 36;
