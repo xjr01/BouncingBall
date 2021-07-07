@@ -24,14 +24,17 @@ private:
 	Vector2D g;
 
 	// the id of the ball, and the wall object it run into
-	std::pair<int, pWall> wall_collide;
+	std::vector<std::pair<int, pWall>> wall_collide;
 	double wall_collide_time;
 	// the id of the two balls that collide
-	std::pair<int, int> ball_collide;
+	std::vector<std::pair<int, int>> ball_collide;
 	double ball_collide_time;
 
 public:
-	BouncingBallDriver() {
+	BouncingBallDriver() : balls(), dots(), segs(), g(),
+		wall_collide(), ball_collide(),
+		wall_collide_time(std::numeric_limits<double>::infinity()),
+		ball_collide_time(std::numeric_limits<double>::infinity()) {
 #ifndef ONLINE_RENDERING
 		video_tape = nullptr;
 #endif
@@ -131,8 +134,8 @@ public:
 			segs.push_back(WallSegment(Segment(Vector2D(552, 0), Vector2D(552, 854)), .2));
 
 			// funnel
-			segs.push_back(WallSegment(Segment(Vector2D(552, 0), Vector2D(729, 207)), .2));
-			segs.push_back(WallSegment(Segment(Vector2D(984, 0), Vector2D(807, 207)), .2));
+			segs.push_back(WallSegment(Segment(Vector2D(552, 0), Vector2D(759, 207)), .2));
+			segs.push_back(WallSegment(Segment(Vector2D(984, 0), Vector2D(777, 207)), .2));
 
 			// stripes
 			const int stripe_width = 36;
@@ -168,26 +171,38 @@ public:
 	}
 
 	void wall_collision_detect() {
-		std::pair<double, pWall> the_collide;
+		std::pair<double, pWall> the_collide, first_collide;
 		for (int i = 0; i < balls.size(); ++i) {
 			const Ball& the_ball = balls[i];
+			first_collide = make_pair(std::numeric_limits<double>::infinity(), pWall());
 			for (const auto& dot : dots) {
 				the_collide = collisionDetect(the_ball, dot);
-				if (the_collide.first < wall_collide_time) {
-					wall_collide_time = the_collide.first;
-					wall_collide = make_pair(i, the_collide.second);
-				}
+				if (the_collide.first < first_collide.first)
+					first_collide = the_collide;
 			}
+			if (DOUBLE_EPS::lt(first_collide.first, wall_collide_time)) {
+				wall_collide_time = first_collide.first;
+				wall_collide.clear();
+				wall_collide.push_back(make_pair(i, first_collide.second));
+			}
+			else if (DOUBLE_EPS::eq(first_collide.first, wall_collide_time))
+				wall_collide.push_back(make_pair(i, first_collide.second));
 		}
 		for (int i = 0; i < balls.size(); ++i) {
 			const Ball& the_ball = balls[i];
+			first_collide = make_pair(std::numeric_limits<double>::infinity(), pWall());
 			for (const auto& seg : segs) {
 				the_collide = collisionDetect(the_ball, seg);
-				if (the_collide.first < wall_collide_time) {
-					wall_collide_time = the_collide.first;
-					wall_collide = make_pair(i, the_collide.second);
-				}
+				if (the_collide.first < first_collide.first)
+					first_collide = the_collide;
 			}
+			if (DOUBLE_EPS::lt(first_collide.first, wall_collide_time)) {
+				wall_collide_time = first_collide.first;
+				wall_collide.clear();
+				wall_collide.push_back(make_pair(i, first_collide.second));
+			}
+			else if (DOUBLE_EPS::eq(first_collide.first, wall_collide_time))
+				wall_collide.push_back(make_pair(i, first_collide.second));
 		}
 		return;
 	}
@@ -199,17 +214,20 @@ public:
 				tmp_ball.shape.r += balls[j].shape.r;
 				tmp_ball.v -= balls[j].v;
 				double the_collide_time = collisionDetect(tmp_ball, WallDot(balls[j].shape.p, 1)).first;
-				if (the_collide_time < ball_collide_time) {
+				if (DOUBLE_EPS::lt(the_collide_time, ball_collide_time)) {
 					ball_collide_time = the_collide_time;
-					ball_collide = std::make_pair(i, j);
+					ball_collide.clear();
+					ball_collide.push_back(std::make_pair(i, j));
 				}
+				else if (DOUBLE_EPS::eq(the_collide_time, ball_collide_time))
+					ball_collide.push_back(std::make_pair(i, j));
 			}
 		return;
 	}
 
 	void collision_detect() {
-		wall_collide = std::make_pair(-1, pWall());
-		ball_collide = std::make_pair(-1, -1);
+		wall_collide.clear();
+		ball_collide.clear();
 		wall_collide_time = ball_collide_time = std::numeric_limits<double>::infinity();
 		wall_collision_detect();
 		ball_collision_detect();
@@ -219,21 +237,24 @@ public:
 	void wall_collision_respond() {
 		for (auto& the_ball : balls)
 			the_ball.integrate(wall_collide_time);
-		wall_collide.second->collisionRespond(balls[wall_collide.first]);
+		for (auto& this_wall_collide : wall_collide)
+			this_wall_collide.second->collisionRespond(balls[this_wall_collide.first]);
 		return;
 	}
 
 	void ball_collision_respond() {
 		for (auto& the_ball : balls)
 			the_ball.integrate(ball_collide_time);
-		Ball& b1 = balls[ball_collide.first];
-		Ball& b2 = balls[ball_collide.second];
-		Vector2D base_velocity = b2.v, direction = (b2.shape.p - b1.shape.p).zoomTo(1);
-		b1.v -= base_velocity; b2.v = Vector2D(0, 0);
-		double t = 2.0 * b1.m / (b1.m + b2.m) * (direction * b1.v);
-		b2.v = t * direction;
-		b1.v = b1.v - b2.m / b1.m * t * direction;
-		b1.v += base_velocity; b2.v += base_velocity;
+		for (auto& this_ball_collide : ball_collide) {
+			Ball& b1 = balls[this_ball_collide.first];
+			Ball& b2 = balls[this_ball_collide.second];
+			Vector2D base_velocity = b2.v, direction = (b2.shape.p - b1.shape.p).zoomTo(1);
+			b1.v -= base_velocity; b2.v = Vector2D(0, 0);
+			double t = 2.0 * b1.m / (b1.m + b2.m) * (direction * b1.v);
+			b2.v = t * direction;
+			b1.v = b1.v - b2.m / b1.m * t * direction;
+			b1.v += base_velocity; b2.v += base_velocity;
+		}
 		return;
 	}
 
@@ -329,9 +350,7 @@ public:
 				total_time += time_passed;
 				time_passed = 0;
 				draw();
-#ifndef ONLINE_RENDERING
 				printf("Frame finished. Total time passed: %lf\n", total_time);
-#endif
 			}
 		}
 		fclose(video_tape);
