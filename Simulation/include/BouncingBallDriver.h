@@ -4,6 +4,9 @@
 #include <math_ex.h>
 #include <numeric>
 #include <algorithm>
+#include <cstdio>
+
+//#define ONLINE_RENDERING
 
 #define pWall std::shared_ptr<Wall>
 
@@ -12,6 +15,9 @@ private:
 	static constexpr double simulation_time_step = .01;
 	static constexpr double draw_time_step = .01;
 
+#ifndef ONLINE_RENDERING
+	FILE* video_tape;
+#endif
 	std::vector<Ball> balls;
 	std::vector<WallDot> dots;
 	std::vector<WallSegment> segs;
@@ -24,13 +30,30 @@ private:
 	std::pair<int, int> ball_collide;
 	double ball_collide_time;
 
+public:
+	BouncingBallDriver() {
+#ifndef ONLINE_RENDERING
+		video_tape = nullptr;
+#endif
+	}
+
 	void draw() {
+#ifdef ONLINE_RENDERING
 		cleardevice();
 		for (const auto& the_ball : balls)
 			drawSolidCircle(the_ball.shape, Color(200, 0, 200));
 		for (const auto& dot : dots) drawDot(dot.p, 1.5);
 		for (const auto& seg : segs) drawLine(seg.seg, 1.5);
 		FlushBatchDraw();
+#else
+		fprintf_s(video_tape, "Frame:\n");
+		for (const auto& the_ball : balls)
+			fprintf_s(video_tape, "circle %lf %lf %lf\n", the_ball.shape.p.x, the_ball.shape.p.y, the_ball.shape.r);
+		for (const auto& dot : dots)
+			fprintf_s(video_tape, "dot %lf %lf\n", dot.p.x, dot.p.y);
+		for (const auto& seg : segs)
+			fprintf_s(video_tape, "seg %lf %lf %lf %lf\n", seg.seg.p1.x, seg.seg.p1.y, seg.seg.p2.x, seg.seg.p2.y);
+#endif
 		return;
 	}
 
@@ -121,21 +144,26 @@ private:
 
 			// dots
 			for (int y = 237; y < 518; y += 60)
-				for (int x = 570; x < 984; x += 30)
+				for (int x = 570; x < 954; x += 30)
 					dots.push_back(WallDot(Vector2D(x, y), .2));
 			for (int y = 267; y < 518; y += 60)
-				for (int x = 585; x < 984; x += 30)
+				for (int x = 585; x < 954; x += 30)
 					dots.push_back(WallDot(Vector2D(x, y), .2));
 
 			// balls
-			for (int y = 6; y <= 144; y += 12)
-				for (int x = 703; x <= 833; x += 12)
-					balls.push_back(Ball(Circle(Vector2D(x, y), 5)));
+			for (int y = 6; y <= 144; y += 8)
+				for (int x = 703; x <= 833; x += 8)
+					balls.push_back(Ball(Circle(Vector2D(x, y), 3)));
 
 			g = Vector2D(0, 98);
 
 			break;
 		}
+
+#ifndef ONLINE_RENDERING
+		fprintf_s(video_tape, "%.5lf\n", draw_time_step);
+#endif
+
 		return;
 	}
 
@@ -225,16 +253,23 @@ private:
 
 	void advance(double dt) {
 		double time_step_remaining = dt;
+		int cnt_iter = 0;
 		while (DOUBLE_EPS::gt(time_step_remaining, 0)) {
+#ifdef ONLINE_RENDERING
 			if (GetAsyncKeyState(VK_UP) & 0x8000) balls[0].addForce(Vector2D(0, -500) * balls[0].m);
 			if (GetAsyncKeyState(VK_DOWN) & 0x8000) balls[0].addForce(Vector2D(0, 120) * balls[0].m);
 			if (GetAsyncKeyState(VK_LEFT) & 0x8000) balls[0].addForce(Vector2D(-120, 0) * balls[0].m);
 			if (GetAsyncKeyState(VK_RIGHT) & 0x8000) balls[0].addForce(Vector2D(120, 0) * balls[0].m);
+#endif
 			for (auto& the_ball : balls) the_ball.addForce(g * the_ball.m);
 			collision_detect();
 			collision_respond(time_step_remaining);
-			printf("%.10lf\n", time_step_remaining);
+#ifndef ONLINE_RENDERING
+			if ((++cnt_iter) % 1000 == 0)
+				printf("iter::time_step_remaining: %.10lf\n", time_step_remaining);
+#endif
 		}
+		printf("%d iters.\n", cnt_iter);
 		return;
 	}
 
@@ -242,6 +277,7 @@ public:
 	void main() {
 		std::pair<int, int> window_size = createWin(-1, -1, -1, -1, true);
 
+#ifdef ONLINE_RENDERING
 		BeginBatchDraw();
 		cleardevice();
 		setCurrentColor(Color(0, 200, 200));
@@ -277,6 +313,29 @@ public:
 		}
 		EndBatchDraw();
 		closegraph();
+#else
+		fopen_s(&video_tape, "Visual.txt", "w");
+		initialize();
+		draw();
+
+		double time_passed = 0, // simulation time
+			total_time = 0;
+		while (total_time <= 30) {
+			if (time_passed < draw_time_step) {
+				advance(simulation_time_step);
+				time_passed += simulation_time_step;
+			}
+			else {
+				total_time += time_passed;
+				time_passed = 0;
+				draw();
+#ifndef ONLINE_RENDERING
+				printf("Frame finished. Total time passed: %lf\n", total_time);
+#endif
+			}
+		}
+		fclose(video_tape);
+#endif
 
 		return;
 	}

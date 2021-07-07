@@ -338,3 +338,5 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/offlineVisualization/Visual.txt
+/Simulation/Visual.txt
