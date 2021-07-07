@@ -140,12 +140,15 @@ public:
 			segs.push_back(WallSegment(Segment(Vector2D(777, 230), Vector2D(777, 207)), .2));
 
 			// stripes
-			const int stripe_width = 36;
-			for (int i = 1; i < (984 - 552) / stripe_width; ++i)
+			const int stripe_width = 12;
+			for (int i = 0; i <= 12; ++i)
 				segs.push_back(WallSegment(Segment(
-					Vector2D(552 + i * stripe_width, 518),
-					Vector2D(552 + i * stripe_width, 854)),
-					.2));
+					Vector2D(696 + i * stripe_width, 633),
+					Vector2D(696 + i * stripe_width, 854)), .2));
+			for (int i = 0; i <= 12; ++i)
+				segs.push_back(WallSegment(Segment(
+					Vector2D(696 + i * stripe_width, 633),
+					Vector2D(552 + i * stripe_width * 3, 518)), .2));
 
 			// dots
 			for (int y = 237; y < 518; y += 60)
