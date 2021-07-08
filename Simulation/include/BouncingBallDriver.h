@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cstdio>
 
-//#define ONLINE_RENDERING
+#define ONLINE_RENDERING
 
 #define pWall std::shared_ptr<Wall>
 
@@ -243,16 +243,12 @@ public:
 	}
 
 	void wall_collision_respond() {
-		for (auto& the_ball : balls)
-			the_ball.integrate(wall_collide_time);
 		for (auto& this_wall_collide : wall_collide)
 			this_wall_collide.second->collisionRespond(balls[this_wall_collide.first]);
 		return;
 	}
 
 	void ball_collision_respond() {
-		for (auto& the_ball : balls)
-			the_ball.integrate(ball_collide_time);
 		for (auto& this_ball_collide : ball_collide) {
 			Ball& b1 = balls[this_ball_collide.first];
 			Ball& b2 = balls[this_ball_collide.second];
@@ -276,6 +272,8 @@ public:
 			dt_remaining = 0;
 			return;
 		}
+		for (auto& the_ball : balls)
+			the_ball.integrate(min(wall_collide_time, ball_collide_time));
 		if (DOUBLE_EPS::leq(wall_collide_time, ball_collide_time))
 			wall_collision_respond();
 		if (DOUBLE_EPS::geq(wall_collide_time, ball_collide_time))
