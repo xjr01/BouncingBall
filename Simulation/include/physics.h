@@ -38,9 +38,10 @@ public:
 class WallDot : public Wall {
 private:
 	Vector2D p;
+	double r;
 public:
 	WallDot() = default;
-	explicit WallDot(Vector2D p, double elasticity = .8);
+	explicit WallDot(Vector2D p, double r = 0, double elasticity = .8);
 
 	void collisionRespond(Ball& ball) override;
 	friend std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const WallDot& wall);

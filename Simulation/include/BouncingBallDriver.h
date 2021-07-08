@@ -45,7 +45,7 @@ public:
 		cleardevice();
 		for (const auto& the_ball : balls)
 			drawSolidCircle(the_ball.shape, Color(200, 0, 200));
-		for (const auto& dot : dots) drawDot(dot.p, 1.5);
+		for (const auto& dot : dots) drawDot(dot.p, max(1.5, dot.r));
 		for (const auto& seg : segs) drawLine(seg.seg, 1.5);
 		FlushBatchDraw();
 #else
@@ -100,10 +100,10 @@ public:
 			segs.push_back(WallSegment(Segment(Vector2D(1020, 500) / 1920 * 1536, Vector2D(1120, 400) / 1920 * 1536), .6));
 			for (int y = 675; y <= 860; y += 60)
 				for (int x = 645; x <= 1280; x += 30)
-					dots.push_back(WallDot(Vector2D(x, y) / 1920 * 1536, .2));
+					dots.push_back(WallDot(Vector2D(x, y) / 1920 * 1536, 0, .2));
 			for (int y = 705; y <= 860; y += 60)
 				for (int x = 660; x <= 1280; x += 30)
-					dots.push_back(WallDot(Vector2D(x, y) / 1920 * 1536, .2));
+					dots.push_back(WallDot(Vector2D(x, y) / 1920 * 1536, 0, .2));
 			segs.push_back(WallSegment(Segment(Vector2D(580, 160) / 1920 * 1536, Vector2D(1340, 160) / 1920 * 1536), .2));
 			segs.push_back(WallSegment(Segment(Vector2D(1340, 920) / 1920 * 1536, Vector2D(1340, 160) / 1920 * 1536), .2));
 			segs.push_back(WallSegment(Segment(Vector2D(1340, 920) / 1920 * 1536, Vector2D(580, 920) / 1920 * 1536), .2));
@@ -141,22 +141,22 @@ public:
 
 			// stripes
 			const int stripe_width = 12;
-			for (int i = 0; i <= 12; ++i)
+			for (int i = 0; i <= 24; ++i)
 				segs.push_back(WallSegment(Segment(
-					Vector2D(696 + i * stripe_width, 633),
-					Vector2D(696 + i * stripe_width, 854)), .2));
-			for (int i = 0; i <= 12; ++i)
+					Vector2D(624 + i * stripe_width, 633),
+					Vector2D(624 + i * stripe_width, 854)), .2));
+			for (int i = 0; i <= 24; ++i)
 				segs.push_back(WallSegment(Segment(
-					Vector2D(696 + i * stripe_width, 633),
-					Vector2D(552 + i * stripe_width * 3, 518)), .2));
+					Vector2D(624 + i * stripe_width, 633),
+					Vector2D(552 + i * 18, 518)), .2));
 
 			// dots
-			for (int y = 237; y < 518; y += 60)
-				for (int x = 570; x < 954; x += 30)
-					dots.push_back(WallDot(Vector2D(x, y), .2));
-			for (int y = 267; y < 518; y += 60)
-				for (int x = 585; x < 954; x += 30)
-					dots.push_back(WallDot(Vector2D(x, y), .2));
+			for (int y = 277; y < 480; y += 40)
+				for (int x = 580; x < 964; x += 30)
+					dots.push_back(WallDot(Vector2D(x, y), 6, .1));
+			for (int y = 297; y < 480; y += 40)
+				for (int x = 595; x < 964; x += 30)
+					dots.push_back(WallDot(Vector2D(x, y), 6, .1));
 
 			// balls
 			for (int y = 6; y <= 144; y += 8)
@@ -209,16 +209,15 @@ public:
 			else if (DOUBLE_EPS::eq(first_collide.first, wall_collide_time))
 				wall_collide.push_back(make_pair(i, first_collide.second));
 		}
+		wall_collide_time = max(wall_collide_time, DOUBLE_EPS::eps);
 		return;
 	}
 
 	void ball_collision_detect() {
 		for (int i = 0; i < balls.size(); ++i)
 			for (int j = i + 1; j < balls.size(); ++j) {
-				Ball tmp_ball(balls[i]);
-				tmp_ball.shape.r += balls[j].shape.r;
-				tmp_ball.v -= balls[j].v;
-				double the_collide_time = collisionDetect(tmp_ball, WallDot(balls[j].shape.p, 1)).first;
+				double the_collide_time =
+					collisionDetect(balls[i], WallDot(balls[j].shape.p, balls[j].shape.r)).first;
 				if (DOUBLE_EPS::lt(the_collide_time, ball_collide_time)) {
 					ball_collide_time = the_collide_time;
 					ball_collide.clear();
@@ -227,6 +226,7 @@ public:
 				else if (DOUBLE_EPS::eq(the_collide_time, ball_collide_time))
 					ball_collide.push_back(std::make_pair(i, j));
 			}
+		ball_collide_time = max(ball_collide_time, DOUBLE_EPS::eps);
 		return;
 	}
 
@@ -270,9 +270,10 @@ public:
 			dt_remaining = 0;
 			return;
 		}
-		if (wall_collide_time < ball_collide_time)
+		if (DOUBLE_EPS::leq(wall_collide_time, ball_collide_time))
 			wall_collision_respond();
-		else ball_collision_respond();
+		if (DOUBLE_EPS::geq(wall_collide_time, ball_collide_time))
+			ball_collision_respond();
 		dt_remaining -= min(wall_collide_time, ball_collide_time);
 		return;
 	}

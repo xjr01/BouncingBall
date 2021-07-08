@@ -32,7 +32,7 @@ Wall::Wall(double elasticity) : elasticity(elasticity)
 {
 }
 
-WallDot::WallDot(Vector2D p, double elasticity) : Wall(elasticity), p(p)
+WallDot::WallDot(Vector2D p, double r, double elasticity) : Wall(elasticity), p(p), r(r)
 {
 }
 
@@ -73,7 +73,8 @@ std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const
 {
 	if (DOUBLE_EPS::eq(ball.v.length(), 0) || (wall.p - ball.shape.p) * ball.v <= 0)
 		return std::make_pair(std::numeric_limits<double>::infinity(), std::shared_ptr<Wall>());
-	std::vector<double> collision_time = Line(ball.shape.p, ball.v).cross_t(Circle(wall.p, ball.shape.r));
+	std::vector<double> collision_time =
+		Line(ball.shape.p, ball.v).cross_t(Circle(wall.p, ball.shape.r + wall.r));
 	if (collision_time.empty())
 		return std::make_pair(std::numeric_limits<double>::infinity(), std::shared_ptr<Wall>());
 	return std::make_pair(std::max(collision_time[0], 0.0), std::make_shared<WallDot>(wall));
