@@ -39,9 +39,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				drawSolidCircle(Circle(Vector2D(x, y), r), Color(200, 0, 200));
 			}
 			if (strstr(buffer, "dot") != nullptr) {
-				double x, y;
-				sscanf_s(buffer, "dot %lf %lf", &x, &y);
-				drawDot(Vector2D(x, y), 1.5);
+				double x, y, r = 0;
+				int c_space = 0, l = std::strlen(buffer);
+				for (int i = 0; i < l; ++i) c_space += buffer[i] == ' ';
+				if (c_space > 2) sscanf_s(buffer, "dot %lf %lf %lf", &x, &y, &r);
+				else sscanf_s(buffer, "dot %lf %lf", &x, &y);
+				drawDot(Vector2D(x, y), max(1.5, r));
 			}
 			if (strstr(buffer, "seg") != nullptr) {
 				double x1, y1, x2, y2;

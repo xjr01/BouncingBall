@@ -53,7 +53,7 @@ public:
 		for (const auto& the_ball : balls)
 			fprintf_s(video_tape, "circle %lf %lf %lf\n", the_ball.shape.p.x, the_ball.shape.p.y, the_ball.shape.r);
 		for (const auto& dot : dots)
-			fprintf_s(video_tape, "dot %lf %lf\n", dot.p.x, dot.p.y);
+			fprintf_s(video_tape, "dot %lf %lf %lf\n", dot.p.x, dot.p.y, dot.r);
 		for (const auto& seg : segs)
 			fprintf_s(video_tape, "seg %lf %lf %lf %lf\n", seg.seg.p1.x, seg.seg.p1.y, seg.seg.p2.x, seg.seg.p2.y);
 #endif
@@ -144,19 +144,19 @@ public:
 			for (int i = 0; i <= 24; ++i)
 				segs.push_back(WallSegment(Segment(
 					Vector2D(624 + i * stripe_width, 633),
-					Vector2D(624 + i * stripe_width, 854)), .2));
+					Vector2D(624 + i * stripe_width, 854)), .05));
 			for (int i = 0; i <= 24; ++i)
 				segs.push_back(WallSegment(Segment(
 					Vector2D(624 + i * stripe_width, 633),
-					Vector2D(552 + i * 18, 518)), .2));
+					Vector2D(552 + i * 18, 518)), .05));
 
 			// dots
 			for (int y = 277; y < 480; y += 40)
 				for (int x = 580; x < 964; x += 30)
-					dots.push_back(WallDot(Vector2D(x, y), 6, .1));
+					dots.push_back(WallDot(Vector2D(x, y), 9, .1));
 			for (int y = 297; y < 480; y += 40)
 				for (int x = 595; x < 964; x += 30)
-					dots.push_back(WallDot(Vector2D(x, y), 6, .1));
+					dots.push_back(WallDot(Vector2D(x, y), 9, .1));
 
 			// balls
 			for (int y = 6; y <= 144; y += 8)
