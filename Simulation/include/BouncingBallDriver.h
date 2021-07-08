@@ -22,6 +22,7 @@ private:
 	std::vector<WallDot> dots;
 	std::vector<WallSegment> segs;
 	Vector2D g;
+	int ball_elastic_collision;
 
 	// the id of the ball, and the wall object it run into
 	std::vector<std::pair<int, pWall>> wall_collide;
@@ -32,6 +33,7 @@ private:
 
 public:
 	BouncingBallDriver() : balls(), dots(), segs(), g(),
+		ball_elastic_collision(1),
 		wall_collide(), ball_collide(),
 		wall_collide_time(std::numeric_limits<double>::infinity()),
 		ball_collide_time(std::numeric_limits<double>::infinity()) {
@@ -164,6 +166,7 @@ public:
 					balls.push_back(Ball(Circle(Vector2D(x, y), 3)));
 
 			g = Vector2D(0, 98);
+			ball_elastic_collision = 0;
 
 			break;
 		}
@@ -255,9 +258,12 @@ public:
 			Ball& b2 = balls[this_ball_collide.second];
 			Vector2D base_velocity = b2.v, direction = (b2.shape.p - b1.shape.p).zoomTo(1);
 			b1.v -= base_velocity; b2.v = Vector2D(0, 0);
-			double t = 2.0 * b1.m / (b1.m + b2.m) * (direction * b1.v);
-			b2.v = t * direction;
-			b1.v = b1.v - b2.m / b1.m * t * direction;
+			if (ball_elastic_collision == 1) {
+				double t = 2.0 * b1.m / (b1.m + b2.m) * (direction * b1.v);
+				b2.v = t * direction;
+				b1.v = b1.v - b2.m / b1.m * t * direction;
+			}
+			else b1.v = b2.v = b1.m / (b1.m + b2.m) * b1.v;
 			b1.v += base_velocity; b2.v += base_velocity;
 		}
 		return;
