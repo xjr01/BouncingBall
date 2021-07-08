@@ -109,9 +109,9 @@ std::pair<double, std::shared_ptr<Wall>> collisionDetect(const Ball& ball, const
 		if (!strcmp(info, "Parallel lines"));
 		else throw info;
 	}
-	tmp = collisionDetect(ball, WallDot(wall.seg.p1, wall.elasticity));
+	tmp = collisionDetect(ball, WallDot(wall.seg.p1, 0, wall.elasticity));
 	if (tmp.first < ans.first) ans = tmp;
-	tmp = collisionDetect(ball, WallDot(wall.seg.p2, wall.elasticity));
+	tmp = collisionDetect(ball, WallDot(wall.seg.p2, 0, wall.elasticity));
 	if (tmp.first < ans.first) ans = tmp;
 	return ans;
 }
